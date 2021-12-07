@@ -3,7 +3,7 @@
             [clojure.string :as str]
             [clojure.edn :as edn]))
 
-
+(set! *warn-on-reflection* true)
 
 (defn abs
   "Absolute value of `i`"
@@ -30,12 +30,4 @@
        (str/split-lines)
        (map parse-lines-with)))
 
-(defmacro xor 
-  ([] nil)
-  ([a] a)
-  ([a b]
-    `(let [a# ~a
-           b# ~b]
-      (if a# 
-        (if b# nil a#)
-        (if b# b# nil)))))
+
