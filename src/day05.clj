@@ -4,6 +4,7 @@
 
 (def input
   (slurp (io/resource "day05.txt")))
+
 (def test-input
   (slurp (io/resource "day05-test.txt")))
 
@@ -14,27 +15,30 @@
     (mapv #(Integer/parseInt %) coords)))
 
 
-(defn horiz-or-vert-lines [[x1 y1 x2 y2 :as line]]
-  (when (or (= x1 x2) (= y1 y2))
-    (if (= x1 x2)
-      (if (< y1 y2)
-        [x1 y1 x2 y2]
-        [x2 y2 x1 y1])
-      (if (< x1 x2)
-        [x1 y1 x2 y2]
-        [x2 y2 x1 y1]))))
+(defn horiz? [[_ y1 _ y2]]
+  (= y1 y2))
+
+(defn vert? [[x1 _ x2 _]]
+  (= x1 x2))
 
 
 (defn get-points [[x1 y1 x2 y2]]
-  (for [x (range x1 (inc x2))
-        y (range y1 (inc y2))]
-    [x y]))
+  (let [x1' (min x1 x2)
+        x2' (inc (max x1 x2))
+        y1' (min y1 y2)
+        y2' (inc (max y1 y2))]
+    (for [x (range x1' x2')
+          y (range y1' y2')]
+      [x y])))
+
+
+
 
 (defn solve-part-1 [data]
   (->> data
        (str/split-lines)
        (map parse-line)
-       (keep horiz-or-vert-lines)
+       (filter (fn [line] (or (horiz? line) (vert? line))))
        (mapcat get-points)
        (frequencies)
        (filter (fn [[_ n]] (> n 1)))
