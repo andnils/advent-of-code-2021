@@ -1,36 +1,35 @@
 (ns day06
-  (:require [utils]))
+  (:require [utils]
+            [clojure.string :as str]
+            [clojure.java.io :as io]))
 
-(def test-input [3 4 3 1 2])
+(defn parse-input [s]
+  (->> (str/split s #",")
+       (map #(Integer/parseInt (str/trim %)))
+       (frequencies)))
 
-;; gör om state till en map där vi räknar antal av varje "dag":
-{0 0
- 1 1
- 2 1
- 3 2
- 4 1
- 5 0
- 6 0
- 7 0
- 8 0}
+
+(def test-input
+  (parse-input "3,4,3,1,2"))
+
 
 (def input
-  (utils/read-edn-string "day06.txt"))
+  (-> (io/resource "day06.txt")
+       (slurp)
+       (parse-input)))
 
-
-
-(defn increase-population [state]
-  (let [zeroes (count (filter zero? state))]
-    (concat state (repeat zeroes 9))))
-
-
-(defn advance-timers [state]
-  (map (fn [n] (if (zero? n) 6 (dec n))) state))
 
 (defn tick [state]
-  (-> state
-      (increase-population)
-      (advance-timers)))
+  {0 (get state 1 0)
+   1 (get state 2 0)
+   2 (get state 3 0)
+   3 (get state 4 0)
+   4 (get state 5 0)
+   5 (get state 6 0)
+   6 (+ (get state 0 0) (get state 7 0))
+   7 (get state 8 0)
+   8 (get state 0 0)})
+
 
 (defn simulate [init-state num-days]
  (loop [day 0
@@ -39,13 +38,25 @@
      state
      (recur (inc day) (tick state)))))
 
+
+(defn count-fish [state]
+  (apply + (vals state)))
+
+
+(defn solve [data num-days]
+  (-> data
+      (simulate num-days)
+      (count-fish)))
+
+
 (comment
-  (count (simulate test-input 18))
-  (count (simulate test-input 80))
+  (solve test-input 18)
+  (solve test-input 80)
 
-  (count (simulate input 80))
+  (solve input 80)
 
-  (count (simulate test-input 256))
+  (solve input 256)
+
   )
 
 
